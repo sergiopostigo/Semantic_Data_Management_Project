@@ -4,15 +4,21 @@ import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.apache.jena.ontology.*;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.util.iterator.ExtendedIterator;
-
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class KnowledgeGraph {
 
@@ -31,7 +37,7 @@ public class KnowledgeGraph {
         // Create the TBOX
         CreateTBOX(NS);
 
-        CreateABOX();
+        CreateABOX(NS);
 
 
         //ArrayList<String> iu = OpenAvro("../data/version5.avro");
@@ -108,26 +114,41 @@ public class KnowledgeGraph {
 
     }
 
-    public void CreateABOX(){
+    public void CreateABOX(String NS){
 
-        // Get AVRO file data
-        ArrayList<String> data = OpenAvro("../data/version5.avro");
-        Map<String, String> record_map = new HashMap<String, String>();
+        // Path to data
+        String data_path = "../data/peru_data.csv";
+        // Read the data
+        List<String[]>  data = readCSV(data_path);
+
+        // ---------------------------------------
+        // Trader
+        // ---------------------------------------
+        ArrayList<String> traders = new ArrayList<String>();
+        // Get all traders
         data.forEach(record -> {
-            record = record.substring(1, record.length() - 1); // remove the first and last characters from the row { }
-            String[] pairs = record.split("\", \""); // split the string in the "", "" locations
-            for (int i=0;i<pairs.length;i++) {
-                String pair = pairs[i];
-                String[] keyValue = pair.split(":");
-                record_map.put(keyValue[0], keyValue[1]);
-
-            }
+            traders.add(record[6]);
         });
-        System.out.println(record_map);
+        // Remove duplicated traders
+        Set<String> tradersWithoutDuplicates = new LinkedHashSet<String>(traders);
+        traders.clear();
+        traders.addAll(tradersWithoutDuplicates);
+        // Create individuals
+        traders.forEach(trader -> {
+            // Get the class
+            OntClass traderClass = kg_model.getOntClass( NS + "Trader" );
+            // Generate a random id
+            Random rnd = new Random();
+            long id = Instant.now().toEpochMilli()+rnd.nextInt(9999999);
+            // Create the instance
+            Individual goodIndividual = kg_model.createIndividual(NS + "Trader/" + id, traderClass);
+            // Create the corresponding literals
+            Literal nameLiteral = kg_model.createLiteral(trader);
+            // Link the instance with the literals
+            goodIndividual.addProperty(kg_model.getProperty(NS +"name"), nameLiteral);
 
-        // -- Good --
-        ArrayList<String> goods = new ArrayList<String>();
-
+        });
+        // ---------------------------------------
 
 
     }
@@ -150,6 +171,27 @@ public class KnowledgeGraph {
         return data;
     }
 
+    private List<String[]> readCSV(String path){
+
+        List<String[]> list = null;
+        try {
+            FileReader filereader = new FileReader(path);
+            CSVParser parser = new CSVParserBuilder().withSeparator(',').build();
+            CSVReader csvReader = new CSVReaderBuilder(filereader)
+                    .withCSVParser(parser)
+                    .withSkipLines(1)
+                    .build();
+
+            // Read all data at once
+            list = csvReader.readAll();
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public void showClasses() {
 
         // Create an iterator object containing all classes in the TBOX
@@ -164,4 +206,65 @@ public class KnowledgeGraph {
         }
 
     }
+    public void showClassesAndInstances() {
+
+        // Create an iterator object containing all classes in the TBOX
+        ExtendedIterator classes = kg_model.listClasses();
+
+        // Iterate through all the classes
+        while (classes.hasNext()) {
+            OntClass thisClass = (OntClass) classes.next();
+            // Print the found class
+            System.out.println("Found class: " + thisClass.toString());
+
+            // Create an iterator object containing all instances (also called individuals) of the current class
+            ExtendedIterator instances = thisClass.listInstances();
+
+            // Iterate through all the instances
+            while (instances.hasNext()) {
+                Individual thisInstance = (Individual) instances.next();
+                // Print the found instance
+                System.out.println("  Found instance: " + thisInstance.toString());
+
+            }
+        }
+
+    }
+    public void showClassesInstancesAndProperties() {
+
+        // Create an iterator object containing all classes in the TBOX
+        ExtendedIterator classes = kg_model.listClasses();
+
+        // Iterate through all the classes
+        while (classes.hasNext()) {
+            OntClass thisClass = (OntClass) classes.next();
+            // Print the found class
+            System.out.println("Found class: " + thisClass.toString());
+
+            // Create an iterator object containing all instances (also called individuals) of the current class
+            ExtendedIterator instances = thisClass.listInstances();
+
+            // Iterate through all the instances
+            while (instances.hasNext()) {
+                Individual thisInstance = (Individual) instances.next();
+                // Print the found instance
+                System.out.println("  Found instance: " + thisInstance.toString());
+
+                // Create an iterator object containing all instances (also called individuals) of the current property
+                ExtendedIterator properties = thisInstance.listProperties();
+
+                // Iterate through all the properties
+                while (properties.hasNext()) {
+                    Statement thisProperty = (Statement) properties.next();
+                    // Print the found property
+                    System.out.println("    Found property: " + thisProperty.toString());
+
+                }
+
+            }
+        }
+
+    }
 }
+
+

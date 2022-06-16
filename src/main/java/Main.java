@@ -7,6 +7,8 @@ public class Main {
 
         KnowledgeGraph kg = new KnowledgeGraph(SOURCE);
         //kg.showClasses();
+        //kg.showClassesAndInstances();
+        kg.showClassesInstancesAndProperties();
 
     }
 }
