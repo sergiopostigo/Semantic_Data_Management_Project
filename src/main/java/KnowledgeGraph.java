@@ -12,9 +12,8 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+
+import java.io.*;
 import java.lang.reflect.Array;
 import java.time.Instant;
 import java.util.*;
@@ -37,11 +36,9 @@ public class KnowledgeGraph {
         // Create the TBOX
         CreateTBOX(NS);
 
+        // Create the ABOX
         CreateABOX(NS);
 
-
-        //ArrayList<String> iu = OpenAvro("../data/version5.avro");
-        //System.out.println(iu.get(0));
 
 
 
@@ -119,15 +116,14 @@ public class KnowledgeGraph {
         // Path to data
         String data_path = "../data/peru_data.csv";
         // Read the data
-        List<String[]>  data = readCSV(data_path);
-
+        List<String[]>  data = readCSV(data_path).subList(0,20000);
         // ---------------------------------------
         // Trader
         // ---------------------------------------
         ArrayList<String> traders = new ArrayList<String>();
         // Get all traders
         data.forEach(record -> {
-            traders.add(record[6]);
+            traders.add(record[7]);
         });
         // Remove duplicated traders
         Set<String> tradersWithoutDuplicates = new LinkedHashSet<String>(traders);
@@ -141,16 +137,204 @@ public class KnowledgeGraph {
             Random rnd = new Random();
             long id = Instant.now().toEpochMilli()+rnd.nextInt(9999999);
             // Create the instance
-            Individual goodIndividual = kg_model.createIndividual(NS + "Trader/" + id, traderClass);
+            Individual traderIndividual = kg_model.createIndividual(NS + "Trader/" + id, traderClass);
             // Create the corresponding literals
             Literal nameLiteral = kg_model.createLiteral(trader);
             // Link the instance with the literals
-            goodIndividual.addProperty(kg_model.getProperty(NS +"name"), nameLiteral);
+            traderIndividual.addProperty(kg_model.getProperty(NS +"name"), nameLiteral);
 
         });
         // ---------------------------------------
 
+        // ---------------------------------------
+        // Shipper
+        // ---------------------------------------
+        ArrayList<String> shippers = new ArrayList<String>();
+        // Get all traders
+        data.forEach(record -> {
+            shippers.add(record[6]);
+        });
+        // Remove duplicated shippers
+        Set<String> shippersWithoutDuplicates = new LinkedHashSet<String>(shippers);
+        shippers.clear();
+        shippers.addAll(shippersWithoutDuplicates);
+        // Remove nan value (if any, )
+        shippers.remove("nan");
+        // Create individuals
+        shippers.forEach(shipper -> {
+            // Get the class
+            OntClass shipperClass = kg_model.getOntClass( NS + "Shipper" );
+            // Generate a random id
+            Random rnd = new Random();
+            long id = Instant.now().toEpochMilli()+rnd.nextInt(9999999);
+            // Create the instance
+            Individual shipperIndividual = kg_model.createIndividual(NS + "Shipper/" + id, shipperClass);
+            // Create the corresponding literals
+            Literal nameLiteral = kg_model.createLiteral(shipper);
+            // Link the instance with the literals
+            shipperIndividual.addProperty(kg_model.getProperty(NS +"name"), nameLiteral);
 
+        });
+        // ---------------------------------------
+
+        // ---------------------------------------
+        // Country
+        // ---------------------------------------
+        ArrayList<String> countries = new ArrayList<String>();
+        // Get all countries
+        data.forEach(record -> {
+            countries.add(record[3]);
+            countries.add(record[4]);
+
+        });
+        // Remove duplicated countries
+        Set<String> countriesWithoutDuplicates = new LinkedHashSet<String>(countries);
+        countries.clear();
+        countries.addAll(countriesWithoutDuplicates);
+        // Remove None value (if any)
+        countries.remove("None");
+        // Create individuals
+        countries.forEach(country -> {
+            // Get the class
+            OntClass countryClass = kg_model.getOntClass( NS + "Country" );
+            // Generate a random id
+            Random rnd = new Random();
+            long id = Instant.now().toEpochMilli()+rnd.nextInt(9999999);
+            // Create the instance
+            Individual countryIndividual = kg_model.createIndividual(NS + "Country/" + id, countryClass);
+            // Create the corresponding literals
+            Literal nameLiteral = kg_model.createLiteral(country);
+            // Link the instance with the literals
+            countryIndividual.addProperty(kg_model.getProperty(NS +"name"), nameLiteral);
+        });
+        // ---------------------------------------
+
+        // ---------------------------------------
+        // Via
+        // ---------------------------------------
+        ArrayList<String> vias = new ArrayList<String>();
+        // Get all vias
+        data.forEach(record -> {
+            vias.add(record[5]);
+        });
+        // Remove duplicated vias
+        Set<String> viasWithoutDuplicates = new LinkedHashSet<String>(vias);
+        vias.clear();
+        vias.addAll(viasWithoutDuplicates);
+        // Remove None value (if any)
+        vias.remove("None");
+        // Create individuals
+        vias.forEach(via -> {
+            // Get the class
+            OntClass viaClass = kg_model.getOntClass( NS + "Via" );
+            // Create the instance
+            Individual viaIndividual = kg_model.createIndividual(NS + "Via/" + via, viaClass);
+        });
+        // ---------------------------------------
+
+        // ---------------------------------------
+        // Customs description
+        // ---------------------------------------
+        ArrayList<String> customs = new ArrayList<String>();
+        // Get all vias
+        data.forEach(record -> {
+            customs.add(record[1]);
+        });
+        // Remove duplicated vias
+        Set<String> customsWithoutDuplicates = new LinkedHashSet<String>(customs);
+        customs.clear();
+        customs.addAll(customsWithoutDuplicates);
+        // Create individuals
+        customs.forEach(custom -> {
+            // Get the class
+            OntClass customClass = kg_model.getOntClass( NS + "Customs_Description" );
+            // Generate a random id
+            Random rnd = new Random();
+            long id = Instant.now().toEpochMilli()+rnd.nextInt(9999999);
+            // Create the instance
+            Individual customIndividual = kg_model.createIndividual(NS + "Customs_Description/" + id, customClass);
+            // Create the corresponding literals
+            Literal textLiteral = kg_model.createLiteral(custom);
+            // Link the instance with the literals
+            customIndividual.addProperty(kg_model.getProperty(NS +"text"), textLiteral);
+        });
+        // ---------------------------------------
+
+        // ---------------------------------------
+        // Good
+        // ---------------------------------------
+        ArrayList<String> goods = new ArrayList<String>();
+        data.forEach(record -> {
+            // Get the class
+            OntClass goodClass = kg_model.getOntClass( NS + "Good" );
+            // Generate a random id
+            Random rnd = new Random();
+            long id = Instant.now().toEpochMilli()+rnd.nextInt(9999999);
+            // Create the instance
+            Individual goodIndividual = kg_model.createIndividual(NS + "Good/" + id, goodClass);
+            // Create the corresponding literals
+            Literal commercialDescriptionLiteral = kg_model.createLiteral(record[9]);
+            Literal weightLiteral = kg_model.createLiteral(record[10]);
+            Literal costLiteral = kg_model.createLiteral(record[8]);
+            // Add the data type properties
+            goodIndividual.addProperty(kg_model.getProperty(NS +"commercial_description"), commercialDescriptionLiteral);
+            goodIndividual.addProperty(kg_model.getProperty(NS +"weight"), weightLiteral);
+            goodIndividual.addProperty(kg_model.getProperty(NS +"cost"), costLiteral);
+            // Add the object type properties
+            // --transports--
+            // Get the individual to be associated to
+            Individual shipper = getInstanceOfClassWithALiteral("Shipper", "name", record[6], NS);
+            // If the individual does not exist, don´t add any property. If it exists, add the property
+            if (shipper != null){
+                shipper.addProperty(kg_model.getProperty(NS + "transports"), goodIndividual);
+            }
+            // ----
+            // --imports--
+            // Get the individual to be associated to
+            Individual trader = getInstanceOfClassWithALiteral("Trader", "name", record[7], NS);
+            // If the individual does not exist, don´t add any property. If it exists, add the property
+            if (trader != null){
+                trader.addProperty(kg_model.getProperty(NS + "imports"), goodIndividual);
+            }
+            // ----
+            // --belongs_to--
+            // Get the individual to be associated to
+            Individual customs_description = getInstanceOfClassWithALiteral("Customs_Description", "text", record[1], NS);
+            // If the individual does not exist, don´t add any property. If it exists, add the property
+            if (customs_description != null){
+                goodIndividual.addProperty(kg_model.getProperty(NS + "belongs_to"), customs_description);
+            }
+            // ----
+            // --sent_by--
+            // Get the individual to be associated to
+            try {
+                Individual via = kg_model.getIndividual(NS+"Via/"+record[5]);
+                goodIndividual.addProperty(kg_model.getProperty(NS + "sent_by"),via);
+            }
+            catch(Exception e) {
+                // In case the individual is not found, don´t instance the property
+            }
+            // ----
+            // --comes_from--
+            // Get the individual to be associated to
+            Individual country_origin = getInstanceOfClassWithALiteral("Country", "name", record[3], NS);
+            // If the individual does not exist, don´t add any property. If it exists, add the property
+            if (country_origin != null){
+                goodIndividual.addProperty(kg_model.getProperty(NS + "comes_from"), country_origin);
+            }
+            // ----
+            // --goes_to--
+            // Get the individual to be associated to
+            Individual country_destiny = getInstanceOfClassWithALiteral("Country", "name", record[4], NS);
+            // If the individual does not exist, don´t add any property. If it exists, add the property
+            if (country_destiny != null){
+                goodIndividual.addProperty(kg_model.getProperty(NS + "goes_to"), country_destiny);
+            }
+
+            // Check progress
+            System.out.println( "Progress: " +Float.parseFloat(record[0])/data.size()*100+"%");
+        });
+        // ---------------------------------------
     }
 
     public ArrayList<String> OpenAvro(String path) {
@@ -264,6 +448,68 @@ public class KnowledgeGraph {
             }
         }
 
+    }
+    public void showInstancesAndPropertiesOfClass(String class_) {
+
+        OntClass thisClass = kg_model.getOntClass(class_);
+
+        // Print the found class
+        System.out.println("Found class: " + thisClass.toString());
+
+        // Create an iterator object containing all instances (also called individuals) of the current class
+        ExtendedIterator instances = thisClass.listInstances();
+
+        // Iterate through all the instances
+        while (instances.hasNext()) {
+            Individual thisInstance = (Individual) instances.next();
+            // Print the found instance
+            System.out.println("  Found instance: " + thisInstance.toString());
+
+            // Create an iterator object containing all instances (also called individuals) of the current property
+            ExtendedIterator properties = thisInstance.listProperties();
+
+            // Iterate through all the properties
+            while (properties.hasNext()) {
+                Statement thisProperty = (Statement) properties.next();
+                // Print the found property
+                System.out.println("    Found property: " + thisProperty.toString());
+
+            }
+
+        }
+
+    }
+    public Individual getInstanceOfClassWithALiteral(String class_, String property, String literal, String NS) {
+
+        // Get the class
+        OntClass thisClass = kg_model.getOntClass(NS+class_);
+
+        // Create an iterator object containing all instances (also called individuals) of the current class
+        ExtendedIterator instances = thisClass.listInstances();
+        // Initialize the instance to be returned
+        Individual chosenInstance = null;
+        // Iterate through all the instances of the class
+        while (instances.hasNext()) {
+            Individual thisInstance = (Individual) instances.next();
+            // Check if the instance property has as range the literal value indicated in the argument of the function
+            if (thisInstance.hasProperty(kg_model.getProperty(NS + property), literal)){
+                // If there is a property associated to the instance with range the literal value, return the instance
+                chosenInstance = thisInstance;
+                break;
+            }
+        }
+        return chosenInstance;
+
+    }
+    public void exportModel(String output_path, String format)
+    {
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(output_path);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        kg_model.write(out,format) ;
     }
 }
 
