@@ -1,0 +1,12 @@
+PREFIX ex: <http://dataimporta.com/#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT DISTINCT (?name AS ?Trader) WHERE {
+?trader rdf:type ex:Trader .
+?good rdf:type ex:Good .
+?customs_description rdf:type ex:Customs_Description . ?country rdf:type ex:Country .
+?trader ex:imports ?good .
+?good ex:belongs_to ?customs_description . ?customs_description ex:text "RADIADORES" .
+?good ex:comes_from ?country .
+?country ex:name "UNITED STATES" .
+?trader ex:name ?name .
+}
