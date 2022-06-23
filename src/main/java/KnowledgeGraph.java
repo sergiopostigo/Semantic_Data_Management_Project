@@ -114,7 +114,7 @@ public class KnowledgeGraph {
     public void CreateABOX(String NS){
 
         // Path to data
-        String data_path = "../data/peru.csv";
+        String data_path = "./data/peru.csv";
         // Read the data
         //List<String[]>  data = readCSV(data_path).subList(0,20000);
         List<String[]>  data = readCSV(data_path);
