@@ -114,9 +114,11 @@ public class KnowledgeGraph {
     public void CreateABOX(String NS){
 
         // Path to data
-        String data_path = "../data/peru_data.csv";
+        String data_path = "../data/peru.csv";
         // Read the data
-        List<String[]>  data = readCSV(data_path).subList(0,20000);
+        //List<String[]>  data = readCSV(data_path).subList(0,20000);
+        List<String[]>  data = readCSV(data_path);
+
         // ---------------------------------------
         // Trader
         // ---------------------------------------
@@ -276,10 +278,12 @@ public class KnowledgeGraph {
             Literal commercialDescriptionLiteral = kg_model.createLiteral(record[9]);
             Literal weightLiteral = kg_model.createLiteral(record[10]);
             Literal costLiteral = kg_model.createLiteral(record[8]);
+            Literal dateLiteral = kg_model.createLiteral(record[11]);
             // Add the data type properties
             goodIndividual.addProperty(kg_model.getProperty(NS +"commercial_description"), commercialDescriptionLiteral);
             goodIndividual.addProperty(kg_model.getProperty(NS +"weight"), weightLiteral);
             goodIndividual.addProperty(kg_model.getProperty(NS +"cost"), costLiteral);
+            goodIndividual.addProperty(kg_model.getProperty(NS + "date"), dateLiteral);
             // Add the object type properties
             // --transports--
             // Get the individual to be associated to
@@ -331,10 +335,13 @@ public class KnowledgeGraph {
                 goodIndividual.addProperty(kg_model.getProperty(NS + "goes_to"), country_destiny);
             }
 
+
             // Check progress
             System.out.println( "Progress: " +Float.parseFloat(record[0])/data.size()*100+"%");
         });
         // ---------------------------------------
+
+
     }
 
     public ArrayList<String> OpenAvro(String path) {
@@ -360,7 +367,7 @@ public class KnowledgeGraph {
         List<String[]> list = null;
         try {
             FileReader filereader = new FileReader(path);
-            CSVParser parser = new CSVParserBuilder().withSeparator(',').build();
+            CSVParser parser = new CSVParserBuilder().withSeparator(';').build();
             CSVReader csvReader = new CSVReaderBuilder(filereader)
                     .withCSVParser(parser)
                     .withSkipLines(1)

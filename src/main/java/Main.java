@@ -10,7 +10,7 @@ public class Main {
         //kg.showClassesAndInstances()
         //kg.showClassesInstancesAndProperties();
         //kg.showInstancesAndPropertiesOfClass(SOURCE+"#Good");
-        kg.exportModel("../data/ingestion_file.ttl", "TURTLE");
+        kg.exportModel("../ingestion_file.ttl", "TURTLE");
 
 
     }
