@@ -2,6 +2,7 @@
 
 ## Requirements
 Java 11
+
 GraphDB
 
 ## Create turtle file
