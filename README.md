@@ -13,5 +13,5 @@ This will create a turtle file containing the triplets to build the graph.
 
 ## Populate the data base
 To upload the graph into graphDB:
-- at the opening window, open settings and allow imports for more than 200 MB to setting graphdb.workbench.maxUploadSize = 40000000000
+- at the opening window, open settings and allow imports for more than 200 MB to setting ``graphdb.workbench.maxUploadSize = 40000000000``
 - in graphDB create a repository and import the turtle file. 
