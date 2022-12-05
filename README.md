@@ -1,15 +1,14 @@
 # Semantic_Data_Management_Project
 
 ## Requirements
-Java 11
-
-GraphDB
+- Java 11
+- GraphDB
 
 ## Create turtle file
-There are multiple functoins in the Main.java file. Most of them are commented and usefull only for development porpouses.
+There are multiple functoins in the ``Main.java`` file. Most of them are commented and usefull only for development porpouses.
 The function that is by default not commented is the one used to export the graph into a Turtle file.
 
-To run this project, clone it, compile the Maven Project and run the Main.java file.
+To run this project, clone it, compile the Maven Project and run the ``Main.java`` file.
 This will create a turtle file containing the triplets to build the graph.
 
 ## Populate the data base
